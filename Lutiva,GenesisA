@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Pera {
+    address payable public Lutiva;
+
+    event Deposited(address indexed from, uint amount);
+    event Withdrawn(address indexed to, uint amount);
+
+    constructor() {
+        Lutiva = payable(msg.sender);
+    }
+
+    function deposit() public payable {
+        require(msg.value >= 2, "value must be greater than 3" );
+        emit Deposited(msg.sender, msg.value);
+    }
+
+    function withdraw() public {
+        require(msg.sender == Lutiva);
+        uint balance = address(this).balance;
+        require(balance >= 5, "value must be greater than 5 to withdraw");
+        Lutiva.transfer(balance);
+        emit Withdrawn(Lutiva, balance);
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    receive() external payable {
+        emit Deposited(msg.sender, msg.value);
+    }
+}
