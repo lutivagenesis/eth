@@ -1,34 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Pera {
-    address payable public Lutiva;
+contract FanController {
+    uint256 public minFanSpeed;
+    uint256 public totalFanSpeed;
 
-    event Deposited(address indexed from, uint amount);
-    event Withdrawn(address indexed to, uint amount);
-
-    constructor() {
-        Lutiva = payable(msg.sender);
+    constructor(uint256 _minFanSpeed) {
+        minFanSpeed = _minFanSpeed;
     }
 
-    function deposit() public payable {
-        require(msg.value >= 2, "value must be greater than 3" );
-        emit Deposited(msg.sender, msg.value);
+    function setMinFanSpeed(uint256 _minFanSpeed) public {
+        require(_minFanSpeed > 0, "Minimum fan speed must be greater than zero");
+        minFanSpeed = _minFanSpeed;
     }
 
-    function withdraw() public {
-        require(msg.sender == Lutiva);
-        uint balance = address(this).balance;
-        require(balance >= 5, "value must be greater than 5 to withdraw");
-        Lutiva.transfer(balance);
-        emit Withdrawn(Lutiva, balance);
+    function startFan(uint256 fanSpeed) public {
+        require(fanSpeed >= minFanSpeed, "Fan speed is below minimum requirement");
+        totalFanSpeed += fanSpeed;
     }
 
-    function getBalance() public view returns (uint) {
-        return address(this).balance;
-    }
-
-    receive() external payable {
-        emit Deposited(msg.sender, msg.value);
+    function getTotalFanSpeed() public view returns (uint256) {
+        return totalFanSpeed;
     }
 }
