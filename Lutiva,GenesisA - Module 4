@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: MIT
+/*
+1. Minting new tokens: The platform should be able to create new tokens and distribute them to players as rewards. Only the owner can mint tokens.
+2. Transferring tokens: Players should be able to transfer their tokens to others.
+3. Redeeming tokens: Players should be able to redeem their tokens for items in the in-game store.
+4. Checking token balance: Players should be able to check their token balance at any time.
+5. Burning tokens: Anyone should be able to burn tokens, that they own, that are no longer needed.
+*/
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract GENESIS is ERC20, Ownable {
+
+    mapping(uint256 => uint256) public shopPrices;
+
+    constructor() ERC20("GEN", "GENTOKENS") Ownable(msg.sender) {
+        shopPrices[1] = 150;  
+        shopPrices[2] = 200;  
+        shopPrices[3] = 300;  
+        shopPrices[4] = 400; 
+    }
+
+    function mintTokens(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
+    function sendTokens(address to, uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Transfer Failed: Balance Needed");
+        transfer(to, amount);
+    }
+
+    function listShopItems() external pure returns (string memory) {
+        return "Item Sales: {1} Wood Armor (150) {2} Stone Armor (200) {3} Iron Armor (300) {4} Diamond Armor (400)";
+    }
+
+    function purchaseItem(uint256 item) public {
+        require(shopPrices[item] > 0, "Item is not available.");
+        require(balanceOf(msg.sender) >= shopPrices[item], "Redeem Failed: Balancre Needed");
+        _transfer(msg.sender, owner(), shopPrices[item]);
+    }
+
+    function burnTokens(uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Burn Failed: Balance Needed");
+        _burn(msg.sender, amount);
+    }
+
+    function checkBalance() external view returns (uint256) {
+        return balanceOf(msg.sender);
+    }   
+    
+    function decimals() public pure override returns (uint8) {
+        return 0;
+    }
+}
