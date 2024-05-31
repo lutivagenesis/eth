@@ -12,8 +12,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GENESIS is ERC20, Ownable {
-
     mapping(uint256 => uint256) public shopPrices;
+    mapping(uint256 => address) public itemOwners;
+
+    event ItemPurchased(address indexed buyer, uint256 indexed itemId, uint256 price);
 
     constructor() ERC20("GEN", "GENTOKENS") Ownable(msg.sender) {
         shopPrices[1] = 150;  
@@ -37,8 +39,10 @@ contract GENESIS is ERC20, Ownable {
 
     function purchaseItem(uint256 item) public {
         require(shopPrices[item] > 0, "Item is not available.");
-        require(balanceOf(msg.sender) >= shopPrices[item], "Redeem Failed: Balancre Needed");
-        _transfer(msg.sender, owner(), shopPrices[item]);
+        require(balanceOf(msg.sender) >= shopPrices[item], "Redeem Failed: Balance Needed");
+        _transfer(msg.sender, address(this), shopPrices[item]);
+        itemOwners[item] = msg.sender;
+        emit ItemPurchased(msg.sender, item, shopPrices[item]);
     }
 
     function burnTokens(uint256 amount) public {
